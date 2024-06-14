@@ -62,7 +62,7 @@ const CreateBiography: FC<CreateBiographyProps> = ({}) => {
     form.append("token", cookies["token"]);
 
     try {
-      const { data: respData } = await axios.post("/api/profile-update", form, {
+      const { data: respData } = await axios.post("/api/update-user", form, {
         headers: {
           "Content-Type": "multipart/form-data",
           "x-access-token": cookies["token"],
