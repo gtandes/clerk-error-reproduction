@@ -1,24 +1,11 @@
 "use client";
-
-import { FC, useState } from "react";
-import { useCookies } from "react-cookie";
-import { useUser, useClerk, useSignUp } from "@clerk/clerk-react";
-import axios from "axios";
+import { useState } from "react";
 import { PlaceholdersAndVanishInput } from "./placeholders-and-vanish-input";
+import { useAuth, useUser } from "@clerk/nextjs";
 
-interface CreateBiographyProps {}
-
-const CreateBiography: FC<CreateBiographyProps> = ({}) => {
+export default function CreateBiography() {
   const { user } = useUser();
-  const [cookies, setCookie] = useCookies(["profile", "token"]);
-
-  const placeholders = [
-    "To update your bio:",
-    "Click here",
-    "Type and hit enter",
-    "Or click the arrow on the right",
-    "Skale NFTs to the moon!",
-  ];
+  const { getToken } = useAuth();
 
   const [userData, setUserData] = useState({
     // username: "",
@@ -32,48 +19,30 @@ const CreateBiography: FC<CreateBiographyProps> = ({}) => {
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const token = await getToken();
 
-    console.log(
-      `submitting ${user?.username} - ${userData.bio} - ${user?.imageUrl}`
-    );
+    // form.append("token", token);
+    // make an object with the form data
+    const formDataObject = {
+      username: user?.username ?? "",
+      bio: userData.bio,
+      profile: user?.imageUrl ?? "",
+    };
 
-    // try {
-    //   const { data } = await axios.post(
-    //     "app/api/update-user",
-    //     {
-    //       firstName: userData.bio,
-    //     },
-    //     {
-    //       headers: {
-    //         "Content-Type": "application/json",
-    //       },
-    //     },
-    //   );
-
-    //   console.log(data);
-    // } catch (error) {
-    //   console.log("Error submitting form:", error);
-    // }
-
-    const form = new FormData();
-    form.append("username", user?.username as string);
-    form.append("bio", userData.bio);
-    form.append("profile", user?.imageUrl as string);
-    form.append("token", cookies["token"]);
-
+    console.log("TOKEN", token);
     try {
-      const { data: respData } = await axios.post("/api/update-user", form, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          "x-access-token": cookies["token"],
-        },
-      });
+      const fetchRes = await (
+        await fetch("/api/update-user", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(formDataObject),
+        })
+      ).json();
 
-      console.log(respData);
-
-      setCookie("profile", respData.data.data, {
-        expires: new Date(new Date().setHours(new Date().getHours() + 2)),
-      });
+      console.log(fetchRes);
 
       console.log("submitted");
     } catch (error) {
@@ -83,11 +52,9 @@ const CreateBiography: FC<CreateBiographyProps> = ({}) => {
 
   return (
     <PlaceholdersAndVanishInput
-      placeholders={placeholders}
+      placeholders={[""]}
       onChange={handleChange}
       onSubmit={onSubmit}
     />
   );
-};
-
-export default CreateBiography;
+}
