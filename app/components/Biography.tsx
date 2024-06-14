@@ -1,22 +1,11 @@
 "use client";
-
-import axios from "axios";
 import { useState } from "react";
-import { useCookies } from "react-cookie";
 import { PlaceholdersAndVanishInput } from "./placeholders-and-vanish-input";
-import { useUser } from "@clerk/nextjs";
+import { useAuth, useUser } from "@clerk/nextjs";
 
 export default function CreateBiography() {
   const { user } = useUser();
-  const [cookies, setCookie] = useCookies(["profile", "__session"]);
-
-  const placeholders = [
-    "To update your bio:",
-    "Click here",
-    "Type and hit enter",
-    "Or click the arrow on the right",
-    "Skale NFTs to the moon!",
-  ];
+  const { getToken } = useAuth();
 
   const [userData, setUserData] = useState({
     // username: "",
@@ -30,28 +19,30 @@ export default function CreateBiography() {
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const token = await getToken();
 
-    const form = new FormData();
-    form.append("username", user?.username ?? "");
-    form.append("bio", userData.bio);
-    form.append("profile", user?.imageUrl ?? "");
-    form.append("token", cookies["__session"]);
+    // form.append("token", token);
+    // make an object with the form data
+    const formDataObject = {
+      username: user?.username ?? "",
+      bio: userData.bio,
+      profile: user?.imageUrl ?? "",
+    };
 
+    console.log("TOKEN", token);
     try {
-      console.log("submitting form TRY", cookies);
-      const { data: respData } = await axios.post("/api/update-user", form, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          "x-access-token": cookies["__session"],
-          Authorization: `Bearer ${cookies["__session"]}`,
-        },
-      });
+      const fetchRes = await (
+        await fetch("/api/update-user", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(formDataObject),
+        })
+      ).json();
 
-      console.log(respData);
-
-      setCookie("profile", respData.data.data, {
-        expires: new Date(new Date().setHours(new Date().getHours() + 2)),
-      });
+      console.log(fetchRes);
 
       console.log("submitted");
     } catch (error) {
@@ -61,7 +52,7 @@ export default function CreateBiography() {
 
   return (
     <PlaceholdersAndVanishInput
-      placeholders={placeholders}
+      placeholders={[""]}
       onChange={handleChange}
       onSubmit={onSubmit}
     />
