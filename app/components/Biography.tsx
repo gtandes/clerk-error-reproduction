@@ -5,6 +5,7 @@ import { useCookies } from "react-cookie";
 import { useUser, useClerk, useSignUp } from "@clerk/clerk-react";
 import axios from "axios";
 import { PlaceholdersAndVanishInput } from "./placeholders-and-vanish-input";
+import { clerkClient } from "@clerk/nextjs";
 
 interface CreateBiographyProps {}
 
@@ -37,6 +38,14 @@ const CreateBiography: FC<CreateBiographyProps> = ({}) => {
       `submitting ${user?.username} - ${userData.bio} - ${user?.imageUrl}`
     );
 
+    const userId = "user_2b8kQleSRNmcOSCdJ1Y8pSRr4mK";
+
+    const params = { firstName: userData.bio };
+
+    const response = await clerkClient.users.updateUser(userId, params);
+
+    console.log(response);
+
     // try {
     //   const { data } = await axios.post(
     //     "app/api/update-user",
@@ -55,30 +64,30 @@ const CreateBiography: FC<CreateBiographyProps> = ({}) => {
     //   console.log("Error submitting form:", error);
     // }
 
-    const form = new FormData();
-    form.append("username", user?.username as string);
-    form.append("bio", userData.bio);
-    form.append("profile", user?.imageUrl as string);
-    form.append("token", cookies["token"]);
+    // const form = new FormData();
+    // form.append("username", user?.username as string);
+    // form.append("bio", userData.bio);
+    // form.append("profile", user?.imageUrl as string);
+    // form.append("token", cookies["token"]);
 
-    try {
-      const { data: respData } = await axios.post("/api/update-user", form, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          "x-access-token": cookies["token"],
-        },
-      });
+    // try {
+    //   const { data: respData } = await axios.post("/api/update-user", form, {
+    //     headers: {
+    //       "Content-Type": "multipart/form-data",
+    //       "x-access-token": cookies["token"],
+    //     },
+    //   });
 
-      console.log(respData);
+    //   console.log(respData);
 
-      setCookie("profile", respData.data.data, {
-        expires: new Date(new Date().setHours(new Date().getHours() + 2)),
-      });
+    //   setCookie("profile", respData.data.data, {
+    //     expires: new Date(new Date().setHours(new Date().getHours() + 2)),
+    //   });
 
-      console.log("submitted");
-    } catch (error) {
-      console.log(error);
-    }
+    //   console.log("submitted");
+    // } catch (error) {
+    //   console.log(error);
+    // }
   };
 
   return (
