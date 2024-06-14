@@ -5,6 +5,7 @@ import type { Metadata, NextPage } from "next";
 // import EmptyState from "@/components/shared/EmptyState";
 import { currentUser } from "@clerk/nextjs";
 import ProfileHeader from "../components/ProfileHeader";
+import CreateBiography from "../components/Biography";
 // import ProfileCollectionNFTsFilterModalTrigger from "@/components/Profile/ProfileCollectionNFTsFilterModalTrigger";
 // import ProfileCollectedNFTForm from "@/components/Profile/ProfileCollectedNFTForm";
 // import ProfileCollectedNFTResults from "@/components/Profile/ProfileCollectedNFTResults";
@@ -23,9 +24,8 @@ const ProfilePage: NextPage<ProfilePageProps> = ({}) => {
   // const ownerAddress = user?.web3Wallets[0].web3Wallet!;
 
   return (
-    <main className='flex h-auto w-full flex-col items-center justify-center tracking-[normal]'>
-      {/* <ProfileHeader user={user} /> */}
-      <ProfileHeader/>
+    <main className="flex h-auto w-full flex-col items-center justify-center tracking-[normal]">
+      <CreateBiography />
     </main>
   );
 };
