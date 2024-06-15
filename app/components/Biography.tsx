@@ -2,9 +2,9 @@
 
 import { FC, useState } from "react";
 import { useCookies } from "react-cookie";
-import { useUser, useClerk, useSignUp } from "@clerk/clerk-react";
 import axios from "axios";
 import { PlaceholdersAndVanishInput } from "./placeholders-and-vanish-input";
+import { useUser } from "@clerk/nextjs";
 
 interface CreateBiographyProps {}
 
